@@ -10,6 +10,7 @@ const User = () => import(/* webpackChunkName: 'user' */ '../views/User.vue')
 const Settings = () => import(/* webpackChunkName: 'settings' */ '../views/Settings.vue')
 const Reply = () => import(/* webpackChunkName: 'reply' */ '../components/Reply.vue')
 const NoFound = () => import(/* webpackChunkName: '404' */ '../components/404.vue')
+const Add = () => import(/* webpackChunkName: 'add' */ '../views/Add.vue')
 
 Vue.use(VueRouter)
 
@@ -33,6 +34,11 @@ const routes = [
     path: '/reg',
     name: 'reg',
     component: Reg
+  },
+  {
+    path: '/add',
+    name: 'add',
+    component: Add
   },
   {
     path: '/detail/:id',
