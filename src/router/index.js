@@ -9,6 +9,7 @@ const Detail = () => import(/* webpackChunkName: 'detail' */ '../views/Detail.vu
 const User = () => import(/* webpackChunkName: 'user' */ '../views/User.vue')
 const Settings = () => import(/* webpackChunkName: 'settings' */ '../views/Settings.vue')
 const Reply = () => import(/* webpackChunkName: 'reply' */ '../components/Reply.vue')
+const NoFound = () => import(/* webpackChunkName: '404' */ '../components/404.vue')
 
 Vue.use(VueRouter)
 
@@ -53,6 +54,11 @@ const routes = [
     path: '/reply/',
     name: 'reply',
     component: Reply
+  },
+  {
+    path: '*',
+    name: '404',
+    component: NoFound
   }
 ]
 

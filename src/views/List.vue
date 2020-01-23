@@ -20,7 +20,13 @@
         </van-col>
         <van-col span="3" v-show="index >=10" class="text-center"></van-col>
         <van-col span="21" class="pad">
-          <van-cell :title="item.text" :label="'点赞次数 ' + item.hands" is-link center></van-cell>
+          <van-cell
+            :title="item.text"
+            :label="'点赞次数 ' + item.hands"
+            is-link
+            center
+            :to="{name: 'detail', params: {id: item.id ? item.id : 0}}"
+          ></van-cell>
         </van-col>
       </van-row>
     </van-list>
