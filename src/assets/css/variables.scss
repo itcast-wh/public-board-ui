@@ -1,0 +1,32 @@
+$colors: (
+  1: #ed745e,
+  2: #e08435,
+  3: #f1ae37,
+  "gray": #999999
+);
+
+$bg-colors: (
+  "gray": #f6f7f8
+);
+
+$font-color: #323233;
+
+$fonts: (
+  12, 14, 16, 18, 22
+);
+
+$spacer: 1rem !default;
+
+$spacers: () !default;
+// stylelint-disable-next-line scss/dollar-variable-default
+$spacers: map-merge(
+  (
+    0: 0,
+    1: $spacer * 0.25,
+    2: $spacer * 0.5,
+    3: $spacer,
+    4: $spacer * 1.5,
+    5: $spacer * 3
+  ),
+  $spacers
+);

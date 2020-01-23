@@ -30,6 +30,7 @@
 
 <script>
 // @ is an alias to /src
+import { getList } from '@/api/data'
 import Footer from '@/components/Footer.vue'
 import {
   Search,
@@ -42,10 +43,11 @@ import {
   Button
 } from 'vant'
 export default {
-  name: 'home',
+  name: 'list',
   data () {
     return {
       value: '',
+      page: 0,
       list: [
         {
           text: '小程序',
@@ -111,7 +113,23 @@ export default {
     [Button.name]: Button,
     'it-footer': Footer
   },
+  mounted () {
+    this._getList()
+  },
   methods: {
+    onSearch () {
+      this.page = 0
+      this._getList()
+    },
+    _getList () {
+      this.loading = true
+      getList({ text: this.value }).then((res) => {
+        this.loading = false
+        if (res.code === 200) {
+          console.log('TCL: _getList -> res', res)
+        }
+      })
+    },
     onLoad () {
       // 异步更新数据
       // setTimeout(() => {

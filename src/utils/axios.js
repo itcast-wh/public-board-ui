@@ -31,9 +31,9 @@ instance.interceptors.request.use((config) => {
     config.headers.Authorization = 'Bearer ' + token
   }
   let key = config.url + '&' + config.method
-  this.removePending(key, true)
+  removePending(key, true)
   config.cancelToken = new CancelToken((c) => {
-    this.pending[key] = c
+    pending[key] = c
   })
   return config
 })
