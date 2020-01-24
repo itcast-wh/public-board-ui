@@ -14,4 +14,8 @@
   display: flex;
   flex-flow: column nowrap;
 }
+
+.link {
+  color: #1989fa;
+}
 </style>

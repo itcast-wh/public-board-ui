@@ -88,6 +88,9 @@ export default {
     }
   },
   methods: {
+    onClickLeft () {
+      this.$router.go(-1)
+    },
     // 返回 Promise
     beforeRead (file) {
       return new Promise((resolve, reject) => {

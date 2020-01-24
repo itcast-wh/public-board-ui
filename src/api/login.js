@@ -5,13 +5,13 @@ const getCode = (key) => {
 }
 
 const login = (userInfo) => {
-  return axios.post('/login/login', {
+  return axios.post('/public/login', {
     ...userInfo
   })
 }
 
 const reg = (userInfo) => {
-  return axios.post('/login/reg', {
+  return axios.post('/public/reg', {
     ...userInfo
   })
 }

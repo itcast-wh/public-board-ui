@@ -9,8 +9,10 @@
         src="https://img.yzcdn.cn/vant/cat.jpeg"
       />
       <van-row class="pl-3 flex-column" type="flex" justify="space-between">
-        <van-row class="font16">用户昵称</van-row>
-        <van-row class="font14 color-gray">liweiwh@itcast.com</van-row>
+        <van-row class="font16">{{isLogin ? user.name: '未登录'}}</van-row>
+        <van-row
+          class="font14 color-gray"
+        >{{isLogin ? (user.username? user.username : user.mobile) : '登录后查看'}}</van-row>
       </van-row>
     </van-row>
     <van-row>
@@ -22,7 +24,8 @@
         <van-cell title="关于itcast" is-link />
       </van-row>
       <van-row class="mx-3 mt-3">
-        <van-button type="primary" block>退出登录</van-button>
+        <van-button type="info" block v-if="isLogin" @click="logout">退出登录</van-button>
+        <van-button type="primary" block v-else @click="login">点击登录</van-button>
       </van-row>
     </van-row>
     <it-footer></it-footer>
@@ -37,6 +40,7 @@ import {
   Button,
   Image
 } from 'vant'
+import { mapState, mapMutations } from 'vuex'
 export default {
   name: 'user',
   components: {
@@ -45,6 +49,27 @@ export default {
     [Button.name]: Button,
     [Image.name]: Image,
     'it-footer': Footer
+  },
+  computed: {
+    ...mapState(['isLogin', 'user'])
+  },
+  methods: {
+    ...mapMutations([
+      'setLast',
+      'setToken',
+      'setUser',
+      'setLogin'
+    ]),
+    login () {
+      this.setLast('user')
+      this.$router.push({ name: 'login' })
+    },
+    logout () {
+      this.setLogin(false)
+      this.setToken('')
+      this.setUser({})
+      localStorage.clear()
+    }
   }
 }
 </script>

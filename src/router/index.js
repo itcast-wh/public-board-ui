@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import store from '@/store'
 
 const List = () => import(/* webpackChunkName: 'list' */ '../views/List.vue')
 const Vote = () => import(/* webpackChunkName: 'vote' */ '../views/Vote.vue')
@@ -70,6 +71,19 @@ const routes = [
 
 const router = new VueRouter({
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  if (typeof store.state.user.name === 'undefined') {
+    const user = localStorage.getItem('it-user')
+    const token = localStorage.getItem('it-token')
+    if (user && token) {
+      store.commit('setToken', token)
+      store.commit('setUser', JSON.parse(user))
+      store.commit('setLogin', true)
+    }
+  }
+  next()
 })
 
 export default router

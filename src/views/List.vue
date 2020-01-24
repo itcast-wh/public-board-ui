@@ -22,7 +22,7 @@
         <van-col span="21" class="pad">
           <van-cell
             :title="item.text"
-            :label="'点赞次数 ' + item.hands"
+            :label="'点赞次数 ' + item.likes"
             is-link
             center
             :to="{name: 'detail', params: {id: item.id ? item.id : 0}}"
@@ -54,55 +54,12 @@ export default {
     return {
       value: '',
       page: 0,
+      limit: 0,
       list: [
-        {
-          text: '小程序',
-          hands: 12032
-        },
-        {
-          text: '电商',
-          hands: 11023
-        },
-        {
-          text: 'electron桌面端',
-          hands: 10023
-        },
-        {
-          text: '前端与移动开发  基础班',
-          hands: 9923
-        },
-        {
-          text: '前端与移动开发  基础班',
-          hands: 9923
-        },
-        {
-          text: '前端与移动开发  基础班',
-          hands: 9923
-        },
-        {
-          text: '前端与移动开发  基础班',
-          hands: 9923
-        },
-        {
-          text: '前端与移动开发  基础班',
-          hands: 9923
-        },
-        {
-          text: '前端与移动开发  基础班',
-          hands: 9923
-        },
-        {
-          text: '前端与移动开发  基础班',
-          hands: 9923
-        },
-        {
-          text: '前端与移动开发  基础班',
-          hands: 9923
-        },
-        {
-          text: '前端与移动开发  基础班',
-          hands: 9923
-        }
+        // {
+        //   text: '小程序',
+        //   likes: 12032
+        // },
       ],
       loading: false,
       finished: true
@@ -129,10 +86,14 @@ export default {
     },
     _getList () {
       this.loading = true
-      getList({ text: this.value }).then((res) => {
+      getList({
+        text: this.text,
+        page: this.page,
+        limit: this.limit
+      }).then((res) => {
         this.loading = false
         if (res.code === 200) {
-          console.log('TCL: _getList -> res', res)
+          this.list = res.data
         }
       })
     },
