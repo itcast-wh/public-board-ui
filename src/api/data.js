@@ -16,7 +16,14 @@ const getList = (data) => {
 const addVote = (data) => axios.post('/content/add', data)
 
 // 获取投票详情
-const getDetail = (data) => axios.get('/public/detail?' + qs.stringify(data))
+const getDetail = (data) => {
+  const headers = store.state.token === '' ? null : {
+    'Authorization': 'Bearer ' + store.state.token
+  }
+  return axios.get('/public/detail?' + qs.stringify(data), {
+    headers
+  })
+}
 
 // 获取评论列表
 const getComments = (data) => {

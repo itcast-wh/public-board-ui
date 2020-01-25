@@ -129,14 +129,12 @@ export default {
     },
     // 投票点赞
     setHands (item, index) {
-      console.log('TCL: setHands -> index', index)
-      console.log('TCL: setHands -> item', item)
       let handed = 0
       if (!item.handed) {
         handed = 1
       }
       item.handed = handed
-      this.$set(this.list, index, item)
+      // this.$set(this.list, index, item)
       handsVote({
         id: item._id,
         handed

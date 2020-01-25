@@ -25,7 +25,7 @@
             :label="'点赞次数 ' + item.likes"
             is-link
             center
-            :to="{name: 'detail', params: {id: item._id ? item._id : 0}}"
+            :to="{name: 'detail', params: {id: item._id ? item._id : 0, handed: item.handed ? item.handed : 0}}"
           ></van-cell>
         </van-col>
       </van-row>

@@ -38,8 +38,20 @@
               <van-col>{{item.created | moment}}</van-col>
             </van-row>
             <van-row class="font14 pt-2">{{item.content}}</van-row>
-            <van-row type="flex" justify="end" @click="setLike(item)">
-              <van-icon name="good-job-o" size="1.2rem" class="color-gray mr-1"></van-icon>
+            <van-row type="flex" justify="end" @click="setHands(item,index)">
+              <van-icon
+                name="good-job-o"
+                size="1.2rem"
+                class="color-gray mr-1"
+                v-if="item.handed !== 1"
+              ></van-icon>
+              <van-icon
+                name="good-job"
+                size="1.2rem"
+                class="color-gray mr-1"
+                color="#ff4949"
+                v-else
+              ></van-icon>
               <span class="font14 color-gray">{{item.likes}}</span>
             </van-row>
           </van-col>
@@ -57,8 +69,11 @@
         </div>
         <van-icon name="comment-o" class="mx-1 color-gray" size="1.2rem"></van-icon>
         <span class="color-gray font12 mr-2">{{this.comments.length}}</span>
-        <van-icon name="like-o" class="mx-1 color-gray" size="1.2rem"></van-icon>
-        <span class="color-gray font12">{{likes}}</span>
+        <van-row type="flex" align="center" @click="setVoteHands(info)">
+          <van-icon name="like-o" class="mx-1 color-gray" size="1.2rem" v-if="isHand !== 1"></van-icon>
+          <van-icon name="like" class="mx-1 color-gray" size="1.2rem" color="#ff4949" v-else></van-icon>
+          <span class="color-gray font12">{{likes}}</span>
+        </van-row>
       </van-row>
     </div>
   </div>
@@ -66,7 +81,7 @@
 
 <script>
 // import _ from 'lodash'
-import { getDetail, getComments } from '@/api/data'
+import { getDetail, getComments, handsComment, handsVote } from '@/api/data'
 import {
   Button,
   NavBar,
@@ -79,12 +94,13 @@ import {
   Sticky,
   List,
   Cell,
+  Toast,
   Dialog
 } from 'vant'
 
 export default {
   name: 'detail',
-  props: ['id'],
+  props: ['id', 'handed'],
   components: {
     [Button.name]: Button,
     [NavBar.name]: NavBar,
@@ -113,6 +129,9 @@ export default {
     }
   },
   mounted () {
+    if (this.handed) {
+      this.info.handed = this.handed
+    }
     const key = 'comment-' + this.id
     const str = localStorage.getItem(key)
     if (str && str !== '') {
@@ -170,14 +189,11 @@ export default {
             if (res.data.length > 0) {
               // const old = this.comments.map((item) => item._id)
               // const newArr = res.data.map((item) => item._id).filter(o => old.indexOf(o) === -1)
-              // console.log('TCL: getCommentsList -> newArr', newArr)
               // const addArr = res.data.filter(o => newArr.indexOf(o._id) !== -1)
-              // console.log('TCL: getCommentsList -> addArr', addArr)
               const oldStr = JSON.stringify(this.comments)
               const newStr = res.data.filter((item) => {
                 return oldStr.indexOf(JSON.stringify(item)) === -1
               })
-              // console.log('TCL: getCommentsList -> newStr', newStr)
 
               // const arr = _.filter(res.data, (item) => {
               //   return _.findIndex(this.comments, item) === -1
@@ -218,11 +234,45 @@ export default {
       }
     },
     // 评论点赞
-    setLike (item) {
-      console.log(item)
+    setHands (item, index) {
+      let handed = 0
+      if (!item.handed) {
+        handed = 1
+      }
+      item.handed = handed
+      item.likes += handed ? 1 : -1
+      // this.$set(this.list, index, item)
+      handsComment({
+        id: item._id,
+        handed
+      }).then((res) => {
+        if (res.code === 200) {
+          Toast(handed ? '点赞成功' : '取消点赞')
+        }
+      })
+    },
+    // 文章点赞
+    setVoteHands (info) {
+      let handed = 0
+      if (!info.handed) {
+        handed = 1
+      }
+      // info.handed = handed
+      this.$set(this.info, 'handed', handed)
+      handsVote({
+        id: info._id,
+        handed
+      }).then((res) => {
+        if (res.code === 200) {
+          Toast(handed ? '点赞成功' : '取消点赞')
+        }
+      })
     }
   },
   computed: {
+    isHand () {
+      return this.info ? this.info.handed : this.handed
+    },
     likes () {
       let result = 0
       let leave = 2
