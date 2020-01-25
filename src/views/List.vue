@@ -21,11 +21,11 @@
         <van-col span="3" v-show="index >=10" class="text-center"></van-col>
         <van-col span="21" class="pad">
           <van-cell
-            :title="item.text"
+            :title="item.title"
             :label="'点赞次数 ' + item.likes"
             is-link
             center
-            :to="{name: 'detail', params: {id: item.id ? item.id : 0}}"
+            :to="{name: 'detail', params: {id: item._id ? item._id : 0}}"
           ></van-cell>
         </van-col>
       </van-row>
@@ -87,7 +87,7 @@ export default {
     _getList () {
       this.loading = true
       getList({
-        text: this.text,
+        text: this.value,
         page: this.page,
         limit: this.limit
       }).then((res) => {

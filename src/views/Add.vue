@@ -12,7 +12,7 @@
         <van-field v-model="title" placeholder="请输入标题" label="标题" />
         <van-cell title="分类" is-link :value="typeText" @click="chooseType()" />
         <van-field
-          v-model="message"
+          v-model="content"
           rows="3"
           autosize
           label="内容"
@@ -96,7 +96,7 @@ export default {
     return {
       title: '',
       fileList: [],
-      message: '',
+      content: '',
       showType: false,
       typeIndex: '',
       type: ['HTML/CSS/JS', 'Nodejs', '移动App', '桌面应用', 'React', 'Vue', 'Angular', '微信公众号', '小程序', '混合App', 'UI框架', 'Typscript', '网络安全', '工程化', '数据库', 'WebSocket', '算法与数据结构', 'Docker容器技术', '其他'],
@@ -136,7 +136,7 @@ export default {
         Toast('标题不得为空！')
         return
       }
-      if (this.message.trim() === '') {
+      if (this.content.trim() === '') {
         Toast('内容不得为空！')
         return
       }
@@ -150,11 +150,10 @@ export default {
       }
       addVote({
         title: this.title,
-        message: this.message,
+        content: this.content,
         type: this.type[this.typeIndex],
         tags: this.tags
       }).then((res) => {
-        console.log('TCL: add -> res', res)
         if (res.code === 200) {
           Toast('发表成功！')
           this.$router.push({ name: 'detail', params: { id: res.data._id } })
@@ -162,6 +161,10 @@ export default {
       })
     },
     addTag () {
+      if (this.tag.trim() === '') {
+        Toast('标签不得为空！')
+        return
+      }
       if (this.tags.indexOf(this.tag) === -1) {
         this.tags.push(this.tag)
         this.tag = ''

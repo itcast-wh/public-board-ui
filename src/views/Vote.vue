@@ -12,13 +12,18 @@
       </van-search>
     </van-sticky>
     <van-list v-model="loading" :finished="finished">
-      <van-cell v-for="(item,index) in list" :key="'vote' + index" :title="item.text">
+      <van-cell
+        v-for="(item,index) in list"
+        :key="'vote' + index"
+        :title="item.title"
+        @click="setHands(item, index)"
+      >
         <van-icon
           slot="right-icon"
           name="like-o"
           style="line-height: inherit;"
           size="20"
-          v-if="item.handed"
+          v-if="item.handed !== 1"
         />
         <van-icon
           slot="right-icon"
@@ -41,7 +46,7 @@
 <script>
 // @ is an alias to /src
 import { mapMutations } from 'vuex'
-import { getList } from '@/api/data'
+import { getList, handsVote } from '@/api/data'
 import Footer from '@/components/Footer.vue'
 import {
   Search,
@@ -51,7 +56,8 @@ import {
   Col,
   Row,
   Icon,
-  Dialog
+  Dialog,
+  Toast
 } from 'vant'
 export default {
   name: 'vote',
@@ -115,9 +121,28 @@ export default {
         this.loading = false
         if (res.code === 200) {
           this.list = res.data
-          if (this.page === 0 && this.list.length === 0) {
+          if (this.page === 0 && this.list.length < this.limit) {
             this.finished = true
           }
+        }
+      })
+    },
+    // 投票点赞
+    setHands (item, index) {
+      console.log('TCL: setHands -> index', index)
+      console.log('TCL: setHands -> item', item)
+      let handed = 0
+      if (!item.handed) {
+        handed = 1
+      }
+      item.handed = handed
+      this.$set(this.list, index, item)
+      handsVote({
+        id: item._id,
+        handed
+      }).then((res) => {
+        if (res.code === 200) {
+          Toast(handed ? '点赞成功' : '取消点赞')
         }
       })
     }

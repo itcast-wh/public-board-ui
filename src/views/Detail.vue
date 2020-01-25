@@ -1,18 +1,22 @@
 <template>
   <div>
     <van-sticky>
-      <van-nav-bar title left-arrow @click-left="onClickLeft" />
+      <van-nav-bar title="投票详情" left-arrow @click-left="onClickLeft" />
     </van-sticky>
     <div class="container p-3">
-      <div class="title font16">这里是标题.....</div>
-      <div class="content pt-2 font14">
-        这里是内容
-        <img src="https://img.yzcdn.cn/vant/cat.jpeg" width="100%" alt />
-      </div>
+      <div class="title font16">{{info.title}}</div>
+      <div class="content pt-2 font14" v-html="info.content"></div>
     </div>
     <van-divider class="px-2">评论</van-divider>
-    <vant-list class="comments" finished-text="没有更多了" :finished="finished">
-      <van-cell>
+    <van-list
+      class="comments pb-5"
+      finished-text="没有更多了"
+      :finished="finished"
+      :load="loading"
+      :offset="10"
+      @load="getMore()"
+    >
+      <van-cell v-for="(item,index) in comments" :key="'comments' + index">
         <van-row class="comments-item py-2 px-3">
           <van-col span="3">
             <van-image
@@ -20,7 +24,7 @@
               fit="cover"
               width="2rem"
               height="2rem"
-              src="https://img.yzcdn.cn/vant/cat.jpeg"
+              :src="item.uid.pic ? item.uid.pic : 'https://img.yzcdn.cn/vant/cat.jpeg'"
             />
           </van-col>
           <van-col span="21">
@@ -30,92 +34,39 @@
               align="center"
               justify="space-between"
             >
-              <van-col>用户名</van-col>
-              <van-col>1天前</van-col>
+              <van-col>{{item.uid.name}}</van-col>
+              <van-col>{{item.created | moment}}</van-col>
             </van-row>
-            <van-row class="font14 pt-2">这里的评论内容</van-row>
-            <van-row type="flex" justify="end">
+            <van-row class="font14 pt-2">{{item.content}}</van-row>
+            <van-row type="flex" justify="end" @click="setLike(item)">
               <van-icon name="good-job-o" size="1.2rem" class="color-gray mr-1"></van-icon>
-              <span class="font14 color-gray">14</span>
+              <span class="font14 color-gray">{{item.likes}}</span>
             </van-row>
           </van-col>
         </van-row>
       </van-cell>
-      <van-cell>
-        <van-row class="comments-item py-2 px-3">
-          <van-col span="3">
-            <van-image
-              round
-              fit="cover"
-              width="2rem"
-              height="2rem"
-              src="https://img.yzcdn.cn/vant/cat.jpeg"
-            />
-          </van-col>
-          <van-col span="21">
-            <van-row
-              class="user font14 color-gray"
-              type="flex"
-              align="center"
-              justify="space-between"
-            >
-              <van-col>用户名</van-col>
-              <van-col>1天前</van-col>
-            </van-row>
-            <van-row class="font14 pt-2">这里的评论内容</van-row>
-            <van-row type="flex" justify="end">
-              <van-icon name="good-job-o" size="1.2rem" class="color-gray mr-1"></van-icon>
-              <span class="font14 color-gray">14</span>
-            </van-row>
-          </van-col>
-        </van-row>
-      </van-cell>
-      <van-cell class="mb-5">
-        <van-row class="comments-item py-2 px-3">
-          <van-col span="3">
-            <van-image
-              round
-              fit="cover"
-              width="2rem"
-              height="2rem"
-              src="https://img.yzcdn.cn/vant/cat.jpeg"
-            />
-          </van-col>
-          <van-col span="21">
-            <van-row
-              class="user font14 color-gray"
-              type="flex"
-              align="center"
-              justify="space-between"
-            >
-              <van-col>用户名</van-col>
-              <van-col>1天前</van-col>
-            </van-row>
-            <van-row class="font14 pt-2">这里的评论内容</van-row>
-            <van-row type="flex" justify="end">
-              <van-icon name="good-job-o" size="1.2rem" class="color-gray mr-1"></van-icon>
-              <span class="font14 color-gray">14</span>
-            </van-row>
-          </van-col>
-        </van-row>
-      </van-cell>
-    </vant-list>
+      <!-- <van-cell v-show="comments.length === 0">
+        <van-row class="comments-item py-2 px-3">目前还没有评论，来添加一条吧</van-row>
+      </van-cell>-->
+    </van-list>
     <div class="fixed">
       <van-row type="flex" justify="space-between" align="center" class="px-2 flex-height">
-        <router-link :to="{name: 'reply'}" class="reply-outer mr-2 font14 color-gray text-center">
+        <div @click="reply(0)" class="reply-outer mr-2 font14 color-gray text-center">
           点击回复
           <!-- <input type="text" placeholder="请输入回复内容" class="reply pl-2" /> -->
-        </router-link>
+        </div>
         <van-icon name="comment-o" class="mx-1 color-gray" size="1.2rem"></van-icon>
-        <span class="color-gray font12 mr-2">10</span>
+        <span class="color-gray font12 mr-2">{{this.comments.length}}</span>
         <van-icon name="like-o" class="mx-1 color-gray" size="1.2rem"></van-icon>
-        <span class="color-gray font12">10</span>
+        <span class="color-gray font12">{{likes}}</span>
       </van-row>
     </div>
   </div>
 </template>
 
 <script>
+// import _ from 'lodash'
+import { getDetail, getComments } from '@/api/data'
 import {
   Button,
   NavBar,
@@ -127,7 +78,8 @@ import {
   Field,
   Sticky,
   List,
-  Cell
+  Cell,
+  Dialog
 } from 'vant'
 
 export default {
@@ -148,13 +100,140 @@ export default {
   },
   data () {
     return {
-      message: '',
-      finished: true
+      finished: false,
+      loading: false,
+      page: 0,
+      limit: 10,
+      info: {
+        title: '',
+        content: ''
+      },
+      comments: [],
+      newOnes: []
     }
+  },
+  mounted () {
+    const key = 'comment-' + this.id
+    const str = localStorage.getItem(key)
+    if (str && str !== '') {
+      const obj = JSON.parse(str)
+      this.comments = obj.comments
+      this.page = obj.page
+      this.limit = obj.limit
+    }
+    this.getVoteDetail()
+    this.loading = true
+    this.getCommentsList()
   },
   methods: {
     onClickLeft () {
       this.$router.push({ name: 'list' })
+    },
+    // 获取下一页评论
+    getMore () {
+      if (this.loading) {
+        return
+      }
+      this.page++
+      this.getCommentsList()
+    },
+    // 获取文章详情
+    getVoteDetail () {
+      this.loading = true
+      getDetail({ id: this.id }).then((res) => {
+        this.loading = false
+        if (res.code === 200) {
+          this.info = res.data
+          if (this.info.length === 0) {
+            this.finished = true
+          }
+        }
+      }).catch((err) => {
+        if (err) {
+          this.loading = false
+        }
+      })
+    },
+    // 获取评论列表
+    getCommentsList () {
+      if (this.finished) {
+        return
+      }
+      this.loading = true
+      getComments({ id: this.id, page: this.page, limit: this.limit }).then((res) => {
+        this.loading = false
+        this.newOnes = res.data
+        if (res.code === 200) {
+          if (this.comments.length === 0) {
+            this.comments = res.data
+          } else {
+            if (res.data.length > 0) {
+              // const old = this.comments.map((item) => item._id)
+              // const newArr = res.data.map((item) => item._id).filter(o => old.indexOf(o) === -1)
+              // console.log('TCL: getCommentsList -> newArr', newArr)
+              // const addArr = res.data.filter(o => newArr.indexOf(o._id) !== -1)
+              // console.log('TCL: getCommentsList -> addArr', addArr)
+              const oldStr = JSON.stringify(this.comments)
+              const newStr = res.data.filter((item) => {
+                return oldStr.indexOf(JSON.stringify(item)) === -1
+              })
+              // console.log('TCL: getCommentsList -> newStr', newStr)
+
+              // const arr = _.filter(res.data, (item) => {
+              //   return _.findIndex(this.comments, item) === -1
+              // })
+              this.comments = this.comments.concat(newStr)
+            } else {
+              this.finished = true
+            }
+          }
+        }
+      }).catch((err) => {
+        if (err) {
+          this.loading = true
+        }
+      })
+    },
+    // 添加回复
+    reply (id) {
+      const isLogin = this.$store.state.isLogin
+      if (!isLogin) {
+        Dialog.confirm({
+          title: '未登录',
+          message: '您还未登录，请登录后评论',
+          cancelButtonText: '取消',
+          confirmButtonText: '登录'
+        }).then(() => {
+          this.$router.push({ name: 'login' })
+        })
+        return
+      }
+      if (!id) {
+        if (this.newOnes.length === 0 && this.page > 0) {
+          this.page--
+        }
+        const key = 'comment-' + this.id
+        localStorage.setItem(key, JSON.stringify({ page: this.page, comments: this.comments, limit: this.limit }))
+        this.$router.push({ name: 'reply', params: { id: this.id, uid: 0 } })
+      }
+    },
+    // 评论点赞
+    setLike (item) {
+      console.log(item)
+    }
+  },
+  computed: {
+    likes () {
+      let result = 0
+      let leave = 2
+      let num = this.info.likes ? this.info.likes : 0
+      if (num > 10000) {
+        result = (num / 10000).toFixed(leave)
+        return result + 'w'
+      } else {
+        result = num
+      }
+      return result
     }
   }
 }

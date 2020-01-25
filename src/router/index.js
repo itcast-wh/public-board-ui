@@ -60,6 +60,7 @@ const routes = [
   {
     path: '/reply/',
     name: 'reply',
+    props: true,
     component: Reply
   },
   {
