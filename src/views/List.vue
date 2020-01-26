@@ -11,7 +11,13 @@
         <div slot="action" @click="onSearch">搜索</div>
       </van-search>
     </van-sticky>
-    <van-list v-model="loading" :finished="finished" finished-text="没有更多了" @load="onLoad">
+    <van-list
+      v-model="loading"
+      :finished="finished"
+      finished-text="没有更多了"
+      @load="getMore()"
+      class="pb-5"
+    >
       <van-row v-for="(item, index) in list" :key="'cell' + index" type="flex" align="center">
         <van-col span="3" v-show="index < 10" class="text-center">
           <span
@@ -76,12 +82,29 @@ export default {
     [Button.name]: Button,
     'it-footer': Footer
   },
+  watch: {
+    value (newval, oldval) {
+      if (newval.trim() === '') {
+        this.page = 0
+        this.finished = false
+        this._getList()
+      }
+    }
+  },
   mounted () {
     this._getList()
   },
   methods: {
+    getMore () {
+      if (this.finished) {
+        return
+      }
+      this.page++
+      this._getList()
+    },
     onSearch () {
       this.page = 0
+      this.finished = false
       this._getList()
     },
     _getList () {
@@ -93,24 +116,22 @@ export default {
       }).then((res) => {
         this.loading = false
         if (res.code === 200) {
-          this.list = res.data
+          if (this.list.length === 0) {
+            this.list = res.data
+          } else {
+            if (res.data.length < this.limit) {
+              this.finished = true
+            } else {
+              this.list = this.list.concat(res.data)
+            }
+          }
+        }
+      }).catch((err) => {
+        this.loading = false
+        if (err) {
+
         }
       })
-    },
-    onLoad () {
-      // 异步更新数据
-      // setTimeout(() => {
-      //   for (let i = 0; i < 10; i++) {
-      //     this.list.push(this.list.length + 1)
-      //   }
-      //   // 加载状态结束
-      //   this.loading = false
-
-      //   // 数据全部加载完成
-      //   if (this.list.length >= 40) {
-      //     this.finished = true
-      //   }
-      // }, 500)
     }
   }
 }

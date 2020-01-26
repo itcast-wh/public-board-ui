@@ -5,7 +5,7 @@
     </van-sticky>
     <div class="container p-3">
       <div class="title font16">{{info.title}}</div>
-      <div class="content pt-2 font14" v-html="info.content"></div>
+      <div class="content pt-2 font14" v-html="replaceContent"></div>
     </div>
     <van-divider class="px-2">评论</van-divider>
     <van-list
@@ -13,7 +13,7 @@
       finished-text="没有更多了"
       :finished="finished"
       :load="loading"
-      :offset="10"
+      :offset="50"
       @load="getMore()"
     >
       <van-cell v-for="(item,index) in comments" :key="'comments' + index">
@@ -37,7 +37,7 @@
               <van-col>{{item.uid.name}}</van-col>
               <van-col>{{item.created | moment}}</van-col>
             </van-row>
-            <van-row class="font14 pt-2">{{item.content}}</van-row>
+            <van-row class="font14 pt-2" v-html="item.content"></van-row>
             <van-row type="flex" justify="end" @click="setHands(item,index)">
               <van-icon
                 name="good-job-o"
@@ -185,6 +185,7 @@ export default {
         if (res.code === 200) {
           if (this.comments.length === 0) {
             this.comments = res.data
+            this.finished = true
           } else {
             if (res.data.length > 0) {
               // const old = this.comments.map((item) => item._id)
@@ -241,7 +242,6 @@ export default {
       }
       item.handed = handed
       item.likes += handed ? 1 : -1
-      // this.$set(this.list, index, item)
       handsComment({
         id: item._id,
         handed
@@ -257,8 +257,9 @@ export default {
       if (!info.handed) {
         handed = 1
       }
-      // info.handed = handed
+      this.info.likes += handed ? 1 : -1
       this.$set(this.info, 'handed', handed)
+      this.$set(this.info, 'likes', this.info.likes)
       handsVote({
         id: info._id,
         handed
@@ -284,6 +285,9 @@ export default {
         result = num
       }
       return result
+    },
+    replaceContent () {
+      return this.info.content.replace(/\n/g, '<br/>')
     }
   }
 }

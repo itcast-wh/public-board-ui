@@ -99,7 +99,7 @@ export default {
       content: '',
       showType: false,
       typeIndex: '',
-      type: ['HTML/CSS/JS', 'Nodejs', '移动App', '桌面应用', 'React', 'Vue', 'Angular', '微信公众号', '小程序', '混合App', 'UI框架', 'Typscript', '网络安全', '工程化', '数据库', 'WebSocket', '算法与数据结构', 'Docker容器技术', '其他'],
+      type: ['HTML/CSS/JS', 'Nodejs', '移动App', '桌面应用', 'React', 'Vue', 'Angular', '微信公众号', '小程序/多应用框架', '混合App', 'UI框架', '运维', 'Typscript', '网络安全', '工程化', '数据库', 'WebSocket', '算法与数据结构', 'Docker容器技术', '其他'],
       tags: [],
       tag: ''
     }

@@ -11,7 +11,14 @@
         <div slot="action" @click="add">添加</div>
       </van-search>
     </van-sticky>
-    <van-list v-model="loading" :finished="finished">
+    <van-list
+      v-model="loading"
+      :finished="finished"
+      :load="loading"
+      :offset="100"
+      @load="getMore()"
+      class="pb-5"
+    >
       <van-cell
         v-for="(item,index) in list"
         :key="'vote' + index"
@@ -76,6 +83,15 @@ export default {
       finished: false
     }
   },
+  watch: {
+    value (newval, oldval) {
+      if (newval.trim() === '') {
+        this.page = 0
+        this.finished = false
+        this._getList()
+      }
+    }
+  },
   components: {
     [Search.name]: Search,
     [List.name]: List,
@@ -91,6 +107,13 @@ export default {
   },
   methods: {
     ...mapMutations(['setLast']),
+    getMore () {
+      if (this.finished) {
+        return
+      }
+      this.page++
+      this._getList()
+    },
     add () {
       const isLogin = this.$store.state.isLogin
       if (isLogin) {
@@ -109,6 +132,7 @@ export default {
     },
     onSearch () {
       this.page = 0
+      this.finished = false
       this._getList()
     },
     _getList () {
@@ -120,10 +144,20 @@ export default {
       }).then((res) => {
         this.loading = false
         if (res.code === 200) {
-          this.list = res.data
-          if (this.page === 0 && this.list.length < this.limit) {
-            this.finished = true
+          if (this.list.length === 0) {
+            this.list = res.data
+          } else {
+            if (res.data.length < this.limit) {
+              this.finished = true
+            } else {
+              this.list = this.list.concat(res.data)
+            }
           }
+        }
+      }).catch((err) => {
+        this.loading = false
+        if (err) {
+
         }
       })
     },
@@ -134,7 +168,7 @@ export default {
         handed = 1
       }
       item.handed = handed
-      // this.$set(this.list, index, item)
+      this.$set(this.list, index, item)
       handsVote({
         id: item._id,
         handed
